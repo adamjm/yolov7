@@ -55,7 +55,7 @@ def detect_deployment(source, weights, view_img=False, save_text=False, imgsz=64
     vid_path, vid_writer = None, None
     if webcam:
         view_img = check_imshow()
-        cudnn.benchmark = True  # set True to speed up constant image size inference
+        cudnn.benchmark = False  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz, stride=stride)
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride)
@@ -201,7 +201,7 @@ def detect(save_img=False):
     vid_path, vid_writer = None, None
     if webcam:
         view_img = check_imshow()
-        cudnn.benchmark = True  # set True to speed up constant image size inference
+        #cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz, stride=stride)
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride)

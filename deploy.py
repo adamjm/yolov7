@@ -22,7 +22,7 @@ def home():
 
 # This endpoint handles all the logic necessary for the object detection to work.
 # It requires the desired model and the image in which to perform object detection.
-@app.post("/predict") 
+@app.post("/predict")
 def prediction(file: UploadFile = File(...)):
 
     # 1. VALIDATE INPUT FILE
@@ -30,33 +30,70 @@ def prediction(file: UploadFile = File(...)):
     fileExtension = filename.split(".")[-1] in ("jpg", "jpeg", "png", "webp")
     if not fileExtension:
         raise HTTPException(status_code=415, detail="Unsupported file provided.")
-    
 
-    # 2. Save the image 
-    
+
+    # 2. Save the image
+
     # Read image as a stream of bytes
     image_stream = io.BytesIO(file.file.read())
-    
+
     # Start the stream from the beginning (position zero)
     image_stream.seek(0)
-    
+
     # Write the stream of bytes into a numpy array
     file_bytes = np.asarray(bytearray(image_stream.read()), dtype=np.uint8)
-    
+
     # Decode the numpy array as an image
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    
+
     cv2.imwrite(f'img_1.jpg', image)
 
     # Detect fruits using YOLOv7
     detect_deployment('img_1.jpg', 'yolov7.pt')
-    
+
     # # Open the saved image for reading in binary mode
     file_image = open(f'out/img_1.jpg', mode="rb")
-    
+
     # Return the image as a stream specifying media type
     return StreamingResponse(file_image, media_type="image/jpeg")
 
+
+# This endpoint handles all the logic necessary for the object detection to work.
+# It requires the desired model and the image in which to perform object detection.
+@app.get("/stream")
+def stream():
+
+    # 1. VALIDATE INPUT FILE
+    #filename = file.filename
+    #fileExtension = filename.split(".")[-1] in ("jpg", "jpeg", "png", "webp")
+    #if not fileExtension:
+    #    raise HTTPException(status_code=415, detail="Unsupported file provided.")
+
+
+    # 2. Save the image
+
+    # Read image as a stream of bytes
+    #image_stream = io.BytesIO(file.file.read())
+
+    # Start the stream from the beginning (position zero)
+    #image_stream.seek(0)
+
+    # Write the stream of bytes into a numpy array
+    #file_bytes = np.asarray(bytearray(image_stream.read()), dtype=np.uint8)
+
+    # Decode the numpy array as an image
+    #image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
+    #cv2.imwrite(f'img_1.jpg', image)
+
+    # Detect fruits using YOLOv7
+    detect_deployment("1", 'yolov7.pt')
+
+    # # Open the saved image for reading in binary mode
+    file_image = open(f'out/img_1.jpg', mode="rb")
+
+    # Return the image as a stream specifying media type
+    return StreamingResponse(file_image, media_type="image/jpeg")
 
 
 # Allows the server to be run in this interactive environment
@@ -65,6 +102,6 @@ nest_asyncio.apply()
 # Host depends on the setup you selected (docker or virtual env)
 host = "0.0.0.0" if os.getenv("DOCKER-SETUP") else "127.0.0.1"
 
-# Spin up the server!    
+# Spin up the server!
 uvicorn.run(app, host=host, port=8000)
 
